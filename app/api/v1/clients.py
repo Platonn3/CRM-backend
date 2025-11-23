@@ -45,6 +45,17 @@ async def create_client(
 
 
 @router.get(
+    path="/",
+    response_model=list[ClientResponse],
+    summary="Получить всех клиентов"
+)
+async def get_all_clients(db: AsyncSession = Depends(config.get_db)):
+    result = await db.execute(select(ClientModel))
+    clients = result.scalars().all()
+    return clients
+
+
+@router.get(
     "/{client_id}",
     response_model=ClientResponse,
     summary="Получить клиента по ID"

@@ -1,14 +1,11 @@
-# app/database/models.py
 from sqlalchemy import (
     Column, Integer, String, Date, Time, Text, ForeignKey, Table, DateTime
 )
 from sqlalchemy.orm import relationship, declarative_base
 from sqlalchemy import text
-from datetime import datetime
 
 Base = declarative_base()
 
-# Многие-ко-многим: мастер ↔ услуга
 masters_services = Table(
     "Masters_services",
     Base.metadata,
@@ -20,11 +17,11 @@ masters_services = Table(
 class Client(Base):
     __tablename__ = "Client"
 
-    id = Column(Integer, primary_key=True)  # ← исправлено
+    id = Column(Integer, primary_key=True)
     name = Column(String(30), nullable=False)
     surname = Column(String(80))
-    phone = Column(String(20), nullable=False)  # 10 маловато, лучше 20
-    tg_id = Column(String(50), unique=True, index=True)  # tgId → tg_id
+    phone = Column(String(20), nullable=False)
+    tg_id = Column(String(50), unique=True, index=True)
 
     appointments = relationship("Appointment", back_populates="client_rel")
 
@@ -32,7 +29,7 @@ class Client(Base):
 class Master(Base):
     __tablename__ = "Master"
 
-    id = Column(Integer, primary_key=True)  # ← исправлено
+    id = Column(Integer, primary_key=True)
     name = Column(String(30), nullable=False)
     surname = Column(String(80), nullable=False)
     phone = Column(String(20), nullable=False)
@@ -44,7 +41,7 @@ class Master(Base):
 class Service(Base):
     __tablename__ = "Service"
 
-    id = Column(Integer, primary_key=True)  # ← исправлено
+    id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     duration = Column(Time, nullable=False)
     description = Column(Text)
@@ -57,7 +54,7 @@ class Service(Base):
 class Appointment(Base):
     __tablename__ = "Appointment"
 
-    id = Column(Integer, primary_key=True)  # ← исправлено
+    id = Column(Integer, primary_key=True)
     date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     finish_time = Column(Time, nullable=False)
@@ -76,7 +73,7 @@ class Appointment(Base):
 class Business(Base):
     __tablename__ = "Business"
 
-    id = Column(Integer, primary_key=True)  # ← исправлено
+    id = Column(Integer, primary_key=True)
     name = Column(String(255), nullable=False)
     phone = Column(String(20), nullable=False)
     address = Column(String(150))
