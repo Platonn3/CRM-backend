@@ -21,7 +21,7 @@ class Client(Base):
     name = Column(String(30), nullable=False)
     surname = Column(String(80))
     phone = Column(String(20), nullable=False)
-    tg_id = Column(String(50), unique=True, index=True)
+    tg_id = Column(String(50), unique=True, index=True, nullable=False)
 
     appointments = relationship("Appointment", back_populates="client_rel")
 

@@ -56,15 +56,16 @@ async def get_all_clients(db: AsyncSession = Depends(config.get_db)):
 
 
 @router.get(
-    "/{client_id}",
+    "/{tg_id}",
     response_model=ClientResponse,
-    summary="Получить клиента по ID"
+    summary="Получить клиента по tg_id"
 )
-async def get_client_by_id(
-    client_id: int,
-    db: AsyncSession = Depends(config.get_db)
-):
-    client = await db.get(ClientModel, client_id)
+async def get_client_by_tg_id(tg_id: str, db: AsyncSession = Depends(config.get_db)):
+    result = await db.execute(
+        select(ClientModel)
+        .where(ClientModel.tg_id == tg_id)
+    )
+    client = result.scalar_one_or_none()
     if not client:
         raise HTTPException(
             status_code=404,
