@@ -1,10 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.connect import config
 from app.schemas.client import ClientCreate, ClientResponse
+from app.schemas.master import MasterResponse, MasterWithServices
+from app.schemas.service import ServiceResponse
+from app.schemas.appointment import AppointmentResponse
 from app.database.models import Client as ClientModel
+from app.database.models import Master as MasterModel
+from app.database.models import Service as ServiceModel
+from app.database.models import Appointment as AppointmentModel
 
 router = APIRouter(prefix="/clients", tags=["clients"])
 
@@ -72,3 +79,97 @@ async def get_client_by_tg_id(tg_id: str, db: AsyncSession = Depends(config.get_
             detail="Клиент не найден"
         )
     return client
+
+
+@router.get(
+    "/masters",
+    response_model=list[MasterResponse],
+    summary="Получить всех мастеров"
+)
+async def get_all_masters(db: AsyncSession = Depends(config.get_db())):
+    result = await db.execute(select(MasterModel))
+    masters = result.scalars().all()
+    return masters
+
+
+@router.get(
+    "/masters/{id}",
+    response_model=MasterResponse,
+    summary="Получить мастера по id"
+)
+async def get_master_by_tg_id(id: int, db: AsyncSession = Depends(config.get_db())):
+    result = await db.execute(
+        select(MasterModel)
+        .where(MasterModel.id == id)
+    )
+    master = result.scalars().one_or_none()
+    if not master:
+        raise HTTPException(
+            status_code=404,
+            detail="Мастер не найден"
+        )
+    return master
+
+
+@router.get(
+    "/masters/{master_id}/services",
+    response_model=MasterWithServices,
+    status_code=status.HTTP_200_OK,
+    summary="Получить все услуги мастера"
+)
+async def get_master_with_services(master_id: int, db: AsyncSession = Depends(config.get_db)):
+    master_request = await db.execute(
+        select(MasterModel)
+        .options(selectinload(MasterModel.services))
+        .where(MasterModel.id == master_id)
+    )
+    master = master_request.scalar_one_or_none()
+    if not master:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Мастер не существует"
+        )
+
+    return master
+
+
+@router.get(
+    "/services",
+    response_model=list[ServiceResponse],
+    summary="Получить все виды услуг"
+)
+async def get_all_services(db: AsyncSession = Depends(config.get_db())):
+    result = await db.execute(select(ServiceModel))
+    services = result.scalars().all()
+    return services
+
+
+@router.get(
+    "/services/{id}",
+    response_model=ServiceModel,
+    summary="Получить услугу по id"
+)
+async def get_master_by_tg_id(id: int, db: AsyncSession = Depends(config.get_db())):
+    result = await db.execute(
+        select(ServiceModel)
+        .where(ServiceModel.id == id)
+    )
+    service = result.scalars().one_or_none()
+    if not service:
+        raise HTTPException(
+            status_code=404,
+            detail="Услуга не найдена"
+        )
+    return service
+
+
+@router.get(
+    "/appointments",
+    response_model=list[AppointmentResponse],
+    summary="Получить все записи"
+)
+async def get_all_services(db: AsyncSession = Depends(config.get_db())):
+    result = await db.execute(select(AppointmentModel))
+    appointment = result.scalars().all()
+    return appointment
+
