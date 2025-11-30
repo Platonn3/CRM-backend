@@ -63,7 +63,7 @@ async def get_all_clients(db: AsyncSession = Depends(config.get_db)):
 
 
 @router.get(
-    "/{tg_id}",
+    "/by_tg/{tg_id}",
     response_model=ClientResponse,
     summary="Получить клиента по tg_id"
 )
@@ -86,7 +86,7 @@ async def get_client_by_tg_id(tg_id: str, db: AsyncSession = Depends(config.get_
     response_model=list[MasterResponse],
     summary="Получить всех мастеров"
 )
-async def get_all_masters(db: AsyncSession = Depends(config.get_db())):
+async def get_all_masters(db: AsyncSession = Depends(config.get_db)):
     result = await db.execute(select(MasterModel))
     masters = result.scalars().all()
     return masters
@@ -97,7 +97,7 @@ async def get_all_masters(db: AsyncSession = Depends(config.get_db())):
     response_model=MasterResponse,
     summary="Получить мастера по id"
 )
-async def get_master_by_tg_id(id: int, db: AsyncSession = Depends(config.get_db())):
+async def get_master_by_id(id: int, db: AsyncSession = Depends(config.get_db)):
     result = await db.execute(
         select(MasterModel)
         .where(MasterModel.id == id)
@@ -138,7 +138,7 @@ async def get_master_with_services(master_id: int, db: AsyncSession = Depends(co
     response_model=list[ServiceResponse],
     summary="Получить все виды услуг"
 )
-async def get_all_services(db: AsyncSession = Depends(config.get_db())):
+async def get_all_services(db: AsyncSession = Depends(config.get_db)):
     result = await db.execute(select(ServiceModel))
     services = result.scalars().all()
     return services
@@ -146,10 +146,10 @@ async def get_all_services(db: AsyncSession = Depends(config.get_db())):
 
 @router.get(
     "/services/{id}",
-    response_model=ServiceModel,
+    response_model=ServiceResponse,
     summary="Получить услугу по id"
 )
-async def get_master_by_tg_id(id: int, db: AsyncSession = Depends(config.get_db())):
+async def get_all_services(id: int, db: AsyncSession = Depends(config.get_db)):
     result = await db.execute(
         select(ServiceModel)
         .where(ServiceModel.id == id)
@@ -168,7 +168,7 @@ async def get_master_by_tg_id(id: int, db: AsyncSession = Depends(config.get_db(
     response_model=list[AppointmentResponse],
     summary="Получить все записи"
 )
-async def get_all_services(db: AsyncSession = Depends(config.get_db())):
+async def get_all_appointments(db: AsyncSession = Depends(config.get_db)):
     result = await db.execute(select(AppointmentModel))
     appointment = result.scalars().all()
     return appointment

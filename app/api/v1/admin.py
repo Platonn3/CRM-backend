@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, status, HTTPException
 
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database.models import Master as MasterModel, Service as ServiceModel, Appointment as AppointmentModel, Client as ClientModel
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse
@@ -99,11 +100,14 @@ async def create_new_service(service_data: ServiceCreate, db: AsyncSession = Dep
     summary="Добавить к мастеру услугу"
 )
 async def add_service_to_master(master_id: int, service_id: int, db: AsyncSession = Depends(config.get_db)):
+
     master_request = await db.execute(
-        select(MasterModel).
-        where(MasterModel.id == master_id)
+        select(MasterModel)
+        .where(MasterModel.id == master_id)
+        .options(selectinload(MasterModel.services))
     )
     master = master_request.scalar_one_or_none()
+
     if not master:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -111,10 +115,11 @@ async def add_service_to_master(master_id: int, service_id: int, db: AsyncSessio
         )
 
     service_request = await db.execute(
-        select(ServiceModel).
-        where(ServiceModel.id == service_id)
+        select(ServiceModel)
+        .where(ServiceModel.id == service_id)
     )
     service = service_request.scalar_one_or_none()
+
     if not service:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -130,7 +135,7 @@ async def add_service_to_master(master_id: int, service_id: int, db: AsyncSessio
     master.services.append(service)
 
     await db.commit()
-    await db.refresh(master)
+    await db.refresh(master, ["services"])
 
     return master
 

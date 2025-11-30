@@ -11,7 +11,7 @@ masters_services = Table(
     Base.metadata,
     Column("master_id", Integer, ForeignKey("Master.id"), primary_key=True),
     Column("service_id", Integer, ForeignKey("Service.id"), primary_key=True),
-    Column("price", Integer, nullable=False)
+    Column("price", Integer, nullable=True)
 )
 
 class Client(Base):

@@ -1,4 +1,4 @@
-from _pydatetime import time
+from datetime import time
 
 from pydantic import BaseModel, Field
 
