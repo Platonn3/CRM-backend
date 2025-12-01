@@ -20,7 +20,7 @@ class MasterService:
         return await self.master_repo.create(**master_data.model_dump())
 
     async def add_service_to_master(self, master_id: int, service_id: int):
-        master = await self.master_repo.get_by_id(master_id)
+        master = await self.master_repo.get_with_services(master_id)
         if not master:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -46,21 +46,21 @@ class MasterService:
         return await self.master_repo.get_all()
 
     async def get_master_with_services(self, master_id: int):
-        master = await self.master_repo.get_by_id(master_id)
+        master = await self.master_repo.get_with_services(master_id)
         if not master:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Мастер не существует"
             )
-        return await self.master_repo.get_with_services(master_id)
+        return master
 
     async def get_master_with_appointments(self, master_id: int):
-        master = await self.master_repo.get_by_id(master_id)
+        master = await self.master_repo.get_with_appointments(master_id)
         if not master:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Мастер не существует"
             )
-        return await self.master_repo.get_with_appointments(master_id)
+        return master
 
 

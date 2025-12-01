@@ -9,10 +9,13 @@ class AppointmentRepository(BaseRepository[AppointmentModel]):
             self,
             date, start_time, end_time, master_id
     ) -> AppointmentModel | None:
-        query = (select(AppointmentModel)
-                 .where(AppointmentModel.date == date,
-                        AppointmentModel.start_time == start_time,
-                        AppointmentModel.finish_time == end_time,
-                        AppointmentModel.master_id == master_id))
+        query = select(self.model).where(
+            and_(
+                self.model.master_id == master_id,
+                self.model.date == date,
+                self.model.start_time < end_time,
+                self.model.finish_time > start_time
+            )
+        )
         result = await self.db.execute(query)
         return result.scalar_one_or_none()

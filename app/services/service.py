@@ -10,7 +10,11 @@ class ServiceService:
         self.service_repo = service_repo
 
     async def create_service(self, service_data: ServiceCreate):
-        service = await self.service_repo.get_by_id(service_data.service_id)
+        service = await self.service_repo.get_by_info(
+            service_data.name,
+            service_data.description,
+            service_data.default_price
+        )
         if service:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

@@ -1,4 +1,5 @@
 from app.repositories.appointment import AppointmentRepository
+from app.repositories.client import ClientRepository
 from app.repositories.master import MasterRepository
 from app.repositories.service import ServiceRepository
 from app.schemas.appointment import AppointmentCreate
@@ -7,10 +8,11 @@ from fastapi import HTTPException, status
 
 
 class AppointmentService:
-    def __init__(self, master_repo: MasterRepository, service_repo: ServiceRepository, appointment_repo: AppointmentRepository):
+    def __init__(self, client_repo: ClientRepository, master_repo: MasterRepository, service_repo: ServiceRepository, appointment_repo: AppointmentRepository):
         self.master_repo = master_repo
         self.service_repo = service_repo
         self.appointment_repo = appointment_repo
+        self.client_repo = client_repo
 
     async def create_slot(self, appointment_data: AppointmentCreate):
         appointment = await self.appointment_repo.find_existing_slot(
@@ -31,5 +33,23 @@ class AppointmentService:
         if not service:
             raise HTTPException(status_code=404, detail="Услуга не существует")
         return await self.appointment_repo.create(
-            **appointment_data.model_dump(),
+            **appointment_data.model_dump()
         )
+
+    async def book_slot(self, client_id: int, appointment_id: int):
+        appointment = await self.appointment_repo.get_by_id(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=404, detail="Записи не существует")
+        client = await self.client_repo.get_by_id(client_id)
+        if not client:
+            raise HTTPException(status_code=404, detail="Клиент не найден")
+
+        if appointment.client_id > 0:
+            if appointment.client_id == client_id:
+                raise HTTPException(status_code=400, detail="Вы уже записаны")
+            raise HTTPException(status_code=400, detail="Слот занят")
+
+        appointment.client_id = client_id
+        await self.appointment_repo.db.commit()
+        await self.appointment_repo.db.refresh(appointment)
+        return appointment
