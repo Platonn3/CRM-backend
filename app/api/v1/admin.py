@@ -143,15 +143,13 @@ async def add_service_to_master(master_id: int, service_id: int, db: AsyncSessio
 
 
 @router.post(
-    "/appointments/masters/{master_id}/services/{service_id}",
+    "/appointments/masters/services",
     response_model=AppointmentResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создать новую запись"
 )
 async def create_new_appointment(
     appointment_data: AppointmentCreate,
-    master_id: int,
-    service_id: int,
     db: AsyncSession = Depends(config.get_db)
 ):
     appointment_request = await db.execute(
@@ -161,8 +159,8 @@ async def create_new_appointment(
             AppointmentModel.start_time == appointment_data.start_time,
             AppointmentModel.finish_time == appointment_data.finish_time,
             AppointmentModel.price == appointment_data.price,
-            AppointmentModel.master_id == master_id,
-            AppointmentModel.service_id == service_id,
+            AppointmentModel.master_id == appointment_data.master_id,
+            AppointmentModel.service_id == appointment_data.service_id,
         )
     )
     appointment = appointment_request.scalar_one_or_none()
@@ -172,16 +170,16 @@ async def create_new_appointment(
             detail="Запись уже существует"
         )
 
-    await get_model_by_id_or_404(master_id, MasterModel, db)
-    await get_model_by_id_or_404(service_id, ServiceModel, db)
+    await get_model_by_id_or_404(appointment_data.master_id, MasterModel, db)
+    await get_model_by_id_or_404(appointment_data.service_id, ServiceModel, db)
 
     new_appointment = AppointmentModel(
         date=appointment_data.date,
         start_time=appointment_data.start_time,
         finish_time=appointment_data.finish_time,
         price=appointment_data.price,
-        master_id=master_id,
-        service_id=service_id,
+        master_id=appointment_data.master_id,
+        service_id=appointment_data.service_id,
         client_id=0
     )
 
@@ -189,11 +187,3 @@ async def create_new_appointment(
     await db.commit()
     await db.refresh(new_appointment)
     return new_appointment
-
-
-
-
-
-
-
-
