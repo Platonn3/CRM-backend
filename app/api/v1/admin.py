@@ -4,6 +4,7 @@ from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.api.v1.extensions import get_model_by_id_or_404
 from app.database.models import Master as MasterModel, Service as ServiceModel, Appointment as AppointmentModel, Client as ClientModel
 from app.schemas.appointment import AppointmentCreate, AppointmentResponse
 
@@ -11,6 +12,7 @@ from app.schemas.master import MasterResponse, MasterCreate, MasterWithServices
 
 from app.database.connect import config
 from app.schemas.service import ServiceResponse, ServiceCreate
+
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
@@ -141,7 +143,7 @@ async def add_service_to_master(master_id: int, service_id: int, db: AsyncSessio
 
 
 @router.post(
-    "/appointments/masters/{master_id}/services/{service_id}/clients/{client_id}",
+    "/appointments/masters/{master_id}/services/{service_id}",
     response_model=AppointmentResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Создать новую запись"
@@ -150,7 +152,6 @@ async def create_new_appointment(
     appointment_data: AppointmentCreate,
     master_id: int,
     service_id: int,
-    client_id: int,
     db: AsyncSession = Depends(config.get_db)
 ):
     appointment_request = await db.execute(
@@ -160,7 +161,6 @@ async def create_new_appointment(
             AppointmentModel.start_time == appointment_data.start_time,
             AppointmentModel.finish_time == appointment_data.finish_time,
             AppointmentModel.price == appointment_data.price,
-            AppointmentModel.client_id == client_id,
             AppointmentModel.master_id == master_id,
             AppointmentModel.service_id == service_id,
         )
@@ -172,47 +172,17 @@ async def create_new_appointment(
             detail="Запись уже существует"
         )
 
-    master_request = await db.execute(
-        select(MasterModel).
-        where(MasterModel.id == master_id)
-    )
-    master = master_request.scalar_one_or_none()
-    if not master:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Мастер не существует"
-        )
-
-    service_request = await db.execute(
-        select(ServiceModel).
-        where(ServiceModel.id == service_id)
-    )
-    service = service_request.scalar_one_or_none()
-    if not service:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Услуга не существует"
-        )
-
-    result = await db.execute(
-        select(ClientModel)
-        .where(ClientModel.id == client_id)
-    )
-    client = result.scalar_one_or_none()
-    if not client:
-        raise HTTPException(
-            status_code=404,
-            detail="Клиент не найден"
-        )
+    await get_model_by_id_or_404(master_id, MasterModel, db)
+    await get_model_by_id_or_404(service_id, ServiceModel, db)
 
     new_appointment = AppointmentModel(
         date=appointment_data.date,
         start_time=appointment_data.start_time,
         finish_time=appointment_data.finish_time,
         price=appointment_data.price,
-        client_id=client_id,
         master_id=master_id,
         service_id=service_id,
+        client_id=0
     )
 
     db.add(new_appointment)
