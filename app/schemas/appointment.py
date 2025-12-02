@@ -21,3 +21,9 @@ class AppointmentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class AppointmentId(BaseModel):
+    date: date
+    start_time: time
+    finish_time: time
+    master_id: int
+

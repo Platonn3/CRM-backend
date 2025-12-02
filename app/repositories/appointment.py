@@ -7,13 +7,13 @@ from app.database.models import Appointment as AppointmentModel
 class AppointmentRepository(BaseRepository[AppointmentModel]):
     async def find_existing_slot(
             self,
-            date, start_time, end_time, master_id
+            date, start_time, finish_time, master_id
     ) -> AppointmentModel | None:
         query = select(self.model).where(
             and_(
                 self.model.master_id == master_id,
                 self.model.date == date,
-                self.model.start_time < end_time,
+                self.model.start_time < finish_time,
                 self.model.finish_time > start_time
             )
         )

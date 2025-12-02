@@ -17,3 +17,8 @@ class ServiceResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class ServiceId(BaseModel):
+    name: str
+    description: str
+    default_price: int

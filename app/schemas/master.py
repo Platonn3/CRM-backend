@@ -24,3 +24,6 @@ class MasterWithServices(MasterResponse):
 
 class MasterWithAppointments(MasterResponse):
     appointments: List[AppointmentResponse] = []
+
+class MasterId(BaseModel):
+    master_phone: str

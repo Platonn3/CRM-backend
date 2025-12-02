@@ -1,6 +1,8 @@
+from typing import Optional
+
 from sqlalchemy import select, and_
 from sqlalchemy.orm import selectinload
-from app.repositories.base import BaseRepository
+from app.repositories.base import BaseRepository, ModelType
 from app.database.models import Master as MasterModel
 
 
@@ -24,3 +26,4 @@ class MasterRepository(BaseRepository[MasterModel]):
                  .where(self.model.id == master_id))
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
+

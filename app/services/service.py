@@ -2,6 +2,7 @@ from app.repositories.service import ServiceRepository
 
 from fastapi import HTTPException, status
 
+from app.schemas.service import ServiceId
 from app.schemas.service import ServiceCreate
 
 
@@ -31,6 +32,14 @@ class ServiceService:
             )
         return service
 
+    async def get_service_id_by_service_data(self, service_data: ServiceId):
+        service = await self.service_repo.get_by_info(**service_data.model_dump())
+        if not service:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Услуги не существует"
+            )
+        return service.id
 
     async def get_all_services(self):
         return await self.service_repo.get_all()

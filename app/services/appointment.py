@@ -2,7 +2,7 @@ from app.repositories.appointment import AppointmentRepository
 from app.repositories.client import ClientRepository
 from app.repositories.master import MasterRepository
 from app.repositories.service import ServiceRepository
-from app.schemas.appointment import AppointmentCreate
+from app.schemas.appointment import AppointmentCreate, AppointmentId
 
 from fastapi import HTTPException, status
 
@@ -13,6 +13,15 @@ class AppointmentService:
         self.service_repo = service_repo
         self.appointment_repo = appointment_repo
         self.client_repo = client_repo
+
+    async def get_id_by_data(self, appointment_data: AppointmentId):
+        appointment = await self.appointment_repo.find_existing_slot(**appointment_data.model_dump())
+        if not appointment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Записи yt существует"
+            )
+        return appointment.id
 
     async def create_slot(self, appointment_data: AppointmentCreate):
         appointment = await self.appointment_repo.find_existing_slot(

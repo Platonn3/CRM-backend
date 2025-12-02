@@ -34,6 +34,15 @@ class ClientService:
             )
         return client
 
+    async def get_client_id_by_tg_id(self, tg_id: str):
+        client = await self.client_repo.get_by_tg_id(tg_id)
+        if not client:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Клиент не найден"
+            )
+        return client.id
+
     async def get_client_by_id(self, client_id: int):
         client = await self.client_repo.get_by_id(client_id)
         if not client or client.id == 0:
