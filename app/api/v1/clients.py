@@ -173,3 +173,23 @@ async def get_id_by_master_data(master_data: MasterId, service = Depends(get_mas
 )
 async def get_id_by_tg_id(tg_id: str, service = Depends(get_client_service)):
     return await service.get_client_id_by_tg_id(tg_id)
+
+
+@router.post(
+    "/{client_id}/appointment/{appointment_id}",
+    response_model=AppointmentResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Отписать клиента от услуги"
+)
+async def unlink_client_from_appointment(client_id: int, appointment_id: int, service = Depends(get_appointment_service)):
+    return await service.unlink_client_from_appointment(client_id, appointment_id)
+
+
+@router.get(
+    "/client_id}/appointments",
+    response_model=list[AppointmentResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Получить все записи клиента"
+)
+async def get_clients_appointments(client_id: int, service = Depends(get_appointment_service)):
+    return await service.get_clients_appointments(client_id)

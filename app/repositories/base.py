@@ -25,3 +25,11 @@ class BaseRepository(Generic[ModelType]):
         await self.db.commit()
         await self.db.refresh(obj)
         return obj
+
+    async def delete(self, id: int) -> Optional[ModelType]:
+        obj = await self.get_by_id(id)
+
+        await self.db.delete(obj)
+        await self.db.commit()
+
+        return obj

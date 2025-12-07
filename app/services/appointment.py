@@ -62,3 +62,29 @@ class AppointmentService:
         await self.appointment_repo.db.commit()
         await self.appointment_repo.db.refresh(appointment)
         return appointment
+
+    async def unlink_client_from_appointment(self, client_id, appointment_id: int):
+        client = await self.client_repo.get_by_id(client_id)
+        if not client:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Клиента с таким ID не существует")
+        appointment = await self.appointment_repo.get_by_id(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Записи с таким ID не существует")
+        if appointment.client_id == client_id:
+            appointment.client_id = 0
+            await self.appointment_repo.db.commit()
+            await self.appointment_repo.db.refresh(appointment)
+            return appointment
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отмена невозможна, клиент не записан на эту услугу")
+
+    async def delete_appointment(self, appointment_id):
+        appointment = await self.appointment_repo.delete(appointment_id)
+        if not appointment:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Услуги не существует")
+        return appointment
+
+    async def get_clients_appointments(self, client_id):
+        client = await self.client_repo.get_by_id(client_id)
+        if not client:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Клиента с таким ID не существует")
+        return await self.appointment_repo.get_clients_appointments(client_id)

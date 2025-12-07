@@ -1,4 +1,4 @@
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, Sequence
 from sqlalchemy.orm import selectinload
 from app.repositories.base import BaseRepository
 from app.database.models import Appointment as AppointmentModel
@@ -19,3 +19,8 @@ class AppointmentRepository(BaseRepository[AppointmentModel]):
         )
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
+
+    async def get_clients_appointments(self, client_id: int) -> Sequence[AppointmentModel]:
+        query = select(self.model).where(self.model.client_id == client_id)
+        result = await self.db.execute(query)
+        return result.scalars().all()
