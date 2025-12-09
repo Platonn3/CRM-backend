@@ -186,7 +186,7 @@ async def unlink_client_from_appointment(client_id: int, appointment_id: int, se
 
 
 @router.get(
-    "/client_id}/appointments",
+    "/{client_id}/appointments",
     response_model=list[AppointmentResponse],
     status_code=status.HTTP_200_OK,
     summary="Получить все записи клиента"
