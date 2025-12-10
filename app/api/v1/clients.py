@@ -89,6 +89,16 @@ async def get_all_services(service = Depends(get_service_service)):
     return await service.get_all_services()
 
 
+@router.get(
+    "/appointments",
+    response_model=list[AppointmentResponse],
+    status_code=status.HTTP_200_OK,
+    summary="Получить все записи"
+)
+async def get_all_appointments(service=Depends(get_appointment_service)):
+    return await service.get_all_appointments()
+
+
 @router.post(
     "/{client_id}/appointments/{appointment_id}",
     response_model=AppointmentResponse,

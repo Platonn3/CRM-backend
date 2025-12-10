@@ -88,3 +88,7 @@ class AppointmentService:
         if not client:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Клиента с таким ID не существует")
         return await self.appointment_repo.get_clients_appointments(client_id)
+
+    async def get_all_appointments(self):
+        appointments = await self.appointment_repo.get_all()
+        return appointments
