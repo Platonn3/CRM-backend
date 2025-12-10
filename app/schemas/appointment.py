@@ -13,11 +13,13 @@ class AppointmentCreate(BaseModel):
     master_id: int
 
 class AppointmentResponse(BaseModel):
+    id: int
     date: date
     start_time: time
     finish_time: time
     price: int
-
+    master_id: int
+ 
     class Config:
         from_attributes = True
 
