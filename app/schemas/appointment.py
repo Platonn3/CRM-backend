@@ -18,8 +18,9 @@ class AppointmentResponse(BaseModel):
     start_time: time
     finish_time: time
     price: int
+    client_id: int
     master_id: int
- 
+
     class Config:
         from_attributes = True
 
