@@ -125,8 +125,8 @@ async def get_all_masters(service = Depends(get_master_service)):
     status_code=status.HTTP_200_OK,
     summary="Получить мастера по ID"
 )
-async def get_master_by_id(master_id: int, service = Depends(get_master_service)):
-    return await service.get_master_by_id(master_id)
+async def get_master_by_id(id: int, service = Depends(get_master_service)):
+    return await service.get_master_by_id(id)
 
 
 @router.get(
