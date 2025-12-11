@@ -4,13 +4,13 @@ from pydantic import BaseModel, Field
 
 
 class ServiceCreate(BaseModel):
-    id: int
     name: str = Field(..., max_length=255)
     duration: time
     description: str | None = None
     default_price: int = Field(..., ge=0)
 
 class ServiceResponse(BaseModel):
+    id: int
     name: str = Field(..., max_length=255)
     duration: time
     description: str
