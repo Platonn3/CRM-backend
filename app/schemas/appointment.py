@@ -20,6 +20,7 @@ class AppointmentResponse(BaseModel):
     price: int
     client_id: int
     master_id: int
+    service_id: int
 
     class Config:
         from_attributes = True
