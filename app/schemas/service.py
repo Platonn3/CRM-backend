@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 
 class ServiceCreate(BaseModel):
+    id: int
     name: str = Field(..., max_length=255)
     duration: time
     description: str | None = None
