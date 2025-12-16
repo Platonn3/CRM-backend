@@ -30,4 +30,3 @@ class AppointmentId(BaseModel):
     start_time: time
     finish_time: time
     master_id: int
-
